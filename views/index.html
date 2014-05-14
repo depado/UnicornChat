@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Unicorn Chat</title>
+    <link rel="shortcut icon" href="/custom/favicon.gif" type="image/x-icon" />
     <link href='http://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
     <script src='/jquery/dist/jquery.min.js'></script>
     <link href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css' rel='stylesheet'>
@@ -13,6 +14,9 @@
             var objDiv = document.getElementById('toscroll');
             objDiv.scrollTop = objDiv.scrollHeight; 
         }
+        var isActive;
+        window.onfocus = function () { isActive = true; document.title = "Unicorn Chat"; }; 
+        window.onblur = function () { isActive = false; }; 
 
         var socket = io.connect(window.location.protocol+'//'+window.location.hostname+':'+window.location.port);
 
@@ -22,18 +26,28 @@
                 + username + ' : ' + data 
                 + '</p></div></li>'
             );
+            if(!isActive) document.title = "[New] Unicorn Chat";
             scrollDown();
         });
 
         socket.on('server-message', function(data) {
             $('#conversation').append('<p>'+ data + '</p>');
+            if(!isActive) document.title = "[New] Unicorn Chat";
             scrollDown();
         });
 
         socket.on('connection-success', function() {
-            $('#disconnect-button').show();
             $('#nickname-send').html('Change');
             $('#data').show();
+            $('#activate-browser-notifications').show();
+        });
+
+        socket.on('error', function (data) {
+            $('#error-message').text(data);
+            $('#error-message').show();
+            setTimeout(function() {
+                $('#error-message').fadeOut(500);
+            }, 2000);
         });
 
         socket.on('updateusers', function(data) {
@@ -66,25 +80,11 @@
                 }
             });
 
-            $('#disconnect-button').hide();
             $('#data').hide();
-
-            $('#disconnect-button').click(function(){
-                socket.emit('disconnect');
-                $('#disconnect-button').hide();
-                $('#data').hide();
-            });
+            $('#activate-browser-notifications').hide();
         });
 
     </script>
-    <style type='text/css'>
-        body { 
-            font-family: 'Press Start 2P', cursive;  
-            font-smooth: never;
-            -webkit-font-smoothing : none;
-            font-size: 8px;
-        }
-    </style>
 </head>
 <body>
     <div class="container-fluid">
@@ -108,13 +108,16 @@
                     </div>
                     <div class="panel-footer">
                         <div class="row">
-                            <div class="col-md-6">
-                                <button id="disconnect-button">Disconnect</button>
+                            <div class="col-md-12">
+                                <input id="data" placeholder=" Type in your Message" style="width: 100%;" autofocus/>
+                            </div>
+                            <div class="col-md-12">
                                 <input id="nickname-input" placeholder=" Nickname" autofocus />
                                 <button type="button" id="nickname-send">Connect</button>
-                            </div>
-                            <div class="col-md-6">
-                                <input id="data" placeholder=" Type in your Message" style="width: 100%;" autofocus/>
+                                <button type="button" id="activate-browser-notifications">
+                                    Activate Browser Notification
+                                </button>
+                                <span id="error-message"></span>
                             </div>
                         </div>
                     </div>

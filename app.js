@@ -26,6 +26,7 @@ io.sockets.on('connection', function (socket) {
 
     io.sockets.emit('updateusers', usernames);
 
+    // Broadcasts the message sent to all users after escaping it
     socket.on('sendchat', function (data) {
         if(socket.username == null) {
             socket.emit('server-message', 'You are not connected.');
@@ -34,6 +35,7 @@ io.sockets.on('connection', function (socket) {
         }
     });
 
+    // Adding the user and support nickname changing
     socket.on('adduser', function(username){
         if(username in usernames) {
             io.sockets.emit('error', 'This nickname is already taken.');
@@ -56,6 +58,7 @@ io.sockets.on('connection', function (socket) {
         }
     });
 
+    // Removing the user in case the websocket is closed
     socket.on('disconnect', function(){
         delete usernames[socket.username];
         io.sockets.emit('updateusers', usernames);
