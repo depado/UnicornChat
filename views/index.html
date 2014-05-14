@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Unicorn Chat</title>
+    <link href='http://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
+    <script src='/jquery/dist/jquery.min.js'></script>
+    <link href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css' rel='stylesheet'>
+    <link rel='stylesheet' type='text/css' href='/custom/custom.css'>
+    <script src='/socket.io/socket.io.js'></script>
+
+    <script>
+        function scrollDown () {
+            var objDiv = document.getElementById('toscroll');
+            objDiv.scrollTop = objDiv.scrollHeight; 
+        }
+
+        var socket = io.connect(window.location.protocol+'//'+window.location.hostname+':'+window.location.port);
+
+        socket.on('updatechat', function (username, data) {
+            $('#conversation').append(
+                '<li class="left"><div class="chat-body"><p>' 
+                + username + ' : ' + data 
+                + '</p></div></li>'
+            );
+            scrollDown();
+        });
+
+        socket.on('server-message', function(data) {
+            $('#conversation').append('<p>'+ data + '</p>');
+            scrollDown();
+        });
+
+        socket.on('connection-success', function() {
+            $('#disconnect-button').show();
+            $('#nickname-send').html('Change');
+            $('#data').show();
+        });
+
+        socket.on('updateusers', function(data) {
+            $('#users').empty();
+            $.each(data, function(key, value) {
+                $('#users').append('<div>' + key + '</div>');
+            });
+        });
+
+        $(function(){
+            $('#data').keypress(function(e) {
+                if(e.which == 13) {
+                    var message = $('#data').val();
+                    if(message != '') {
+                        $('#data').val('');
+                        socket.emit('sendchat', message);
+                    }
+                }
+            });
+
+            $('#nickname-send').click(function() {
+                socket.emit('adduser', $('#nickname-input').val());
+                $('#nickname-input').val('');
+            });
+
+            $('#nickname-input').keypress(function(e) {
+                if(e.which == 13) {
+                    socket.emit('adduser', $('#nickname-input').val());
+                    $('#nickname-input').val('');
+                }
+            });
+
+            $('#disconnect-button').hide();
+            $('#data').hide();
+
+            $('#disconnect-button').click(function(){
+                socket.emit('disconnect');
+                $('#disconnect-button').hide();
+                $('#data').hide();
+            });
+        });
+
+    </script>
+    <style type='text/css'>
+        body { 
+            font-family: 'Press Start 2P', cursive;  
+            font-smooth: never;
+            -webkit-font-smoothing : none;
+            font-size: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-primary" style="height: 100%;">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-comment"></span> Chat
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <p class="dashed-down">Connected Users</p>
+                                <div id="users"></div>
+                            </div>
+                            <div class="col-md-10 dashed-left" id="toscroll">
+                                <ul class="chat" id="conversation">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button id="disconnect-button">Disconnect</button>
+                                <input id="nickname-input" placeholder=" Nickname" autofocus />
+                                <button type="button" id="nickname-send">Connect</button>
+                            </div>
+                            <div class="col-md-6">
+                                <input id="data" placeholder=" Type in your Message" style="width: 100%;" autofocus/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
