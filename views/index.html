@@ -21,18 +21,19 @@
         var socket = io.connect(window.location.protocol+'//'+window.location.hostname+':'+window.location.port);
 
         socket.on('updatechat', function (username, data) {
+            var d = new Date();
             $('#conversation').append(
-                '<li class="left"><div class="chat-body"><p>' 
-                + username + ' : ' + data 
+                '<li class="left"><div class="chat-body"><p>[' 
+                + d.getHours() + ':' + d.getMinutes() + '] ' + username + ' > ' + data 
                 + '</p></div></li>'
             );
-            if(!isActive) document.title = "[New] Unicorn Chat";
+            if(!isActive && document.title != "[New] Unicorn Chat") document.title = "[New] Unicorn Chat";
             scrollDown();
         });
 
         socket.on('server-message', function(data) {
             $('#conversation').append('<p>'+ data + '</p>');
-            if(!isActive) document.title = "[New] Unicorn Chat";
+            if(!isActive && document.title != "[New] Unicorn Chat") document.title = "[New] Unicorn Chat";
             scrollDown();
         });
 
