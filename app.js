@@ -18,18 +18,61 @@ app.use(express.static(__dirname + '/bower_components'));
 app.use('/custom', express.static(__dirname + '/static'));
 
 var usernames = {};
+var anon_users = 0;
+var emotes = {
+    ':angry:': {
+        'image': 'angry.gif'
+    },
+    ':hi:': {
+        'image': 'hi.gif'
+    },
+    ':sigh:': {
+        'image': 'sigh.gif'
+    },
+    ':smirk:': {
+        'image': 'smirk.gif'
+    }
+};
+
+function generate_img_string (arg) {
+    var str = "<img src='/custom/images/" + emotes[arg]['image'] + "'";
+    if('height' in emotes[arg]) {
+        str += "style='height:" + emotes[arg]['height'] + "px; padding-bottom:" +
+                        emotes[arg]['height']/10 + "px;'";
+    }
+    str += ">";
+    return str;
+}
 
 io.set('log level', 1);
 io.sockets.on('connection', function (socket) {
 
-    io.sockets.emit('updateusers', usernames);
+    anon_users += 1;
+    io.sockets.emit('updateusers', {'usernames':usernames, 'anon': anon_users});
 
     // Broadcasts the message sent to all users after escaping it
     socket.on('sendchat', function (data) {
         if(socket.username == null) {
             socket.emit('server-message', 'You are not connected.');
-        } else {
-            io.sockets.emit('updatechat', socket.username, validator.escape(data));
+        } else if (data == '/help') {
+            var help_message = 'This is the help message. Only you can see this.<br />Emotes :<br />';
+            for (var key in emotes) {
+                help_message += generate_img_string(key) + " " + key + "&nbsp;&nbsp;";
+            };
+            help_message += '<br />Commands :<br />/dash : Launches a wild pony over the screen of everyone !';
+            socket.emit('server-message', help_message);
+        } else if (data == '/dash') {
+            io.sockets.emit('dash');
+            io.sockets.emit('server-message', socket.username + ' launches a wild pony !');
+        }else {
+            var data = validator.escape(data);
+            for(var key in emotes) {
+                if(data.indexOf(key) != -1) {
+                    var re = new RegExp(key,"g");
+                    data = data.replace(re, generate_img_string(key));
+                }
+            };
+            io.sockets.emit('updatechat', socket.username, data);
         }
     });
 
@@ -46,21 +89,26 @@ io.sockets.on('connection', function (socket) {
                 socket.emit('server-message', 'Now known as ' + new_username);
                 socket.broadcast.emit('server-message', socket.username + ' is now known as ' + new_username);
             } else {
-                socket.emit('server-message', 'Now connected as ' + new_username);
+                socket.emit('server-message', 'Now connected as ' + new_username + ' (/help for commands)');
                 socket.emit('connection-success');
                 socket.broadcast.emit('server-message', new_username + ' is now connected');
+                anon_users -= 1;
             }
             socket.username = new_username;
             usernames[new_username] = new_username;
-            io.sockets.emit('updateusers', usernames);
+            io.sockets.emit('updateusers', {'usernames':usernames, 'anon': anon_users});
         }
     });
 
     // Removing the user in case the websocket is closed
     socket.on('disconnect', function(){
-        delete usernames[socket.username];
-        io.sockets.emit('updateusers', usernames);
-        socket.broadcast.emit('server-message', socket.username + ' has disconnected');
+        if(typeof socket.username != 'undefined') {
+            delete usernames[socket.username];
+            io.sockets.emit('updateusers', {'usernames':usernames, 'anon': anon_users});
+            socket.broadcast.emit('server-message', socket.username + ' has disconnected');
+        } else {
+            anon_users -= 1;
+        }
     });
 });
 

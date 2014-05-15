@@ -51,4 +51,5 @@ body {
     font-smooth: never;
     -webkit-font-smoothing : none;
     font-size: 8px;
+    overflow: hidden;
 }
