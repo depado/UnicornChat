@@ -2,6 +2,11 @@ function scrollDown () {
     var objDiv = document.getElementById('toscroll');
     objDiv.scrollTop = objDiv.scrollHeight;
 }
+
+function titleNotify(isActive) {
+    if(!isActive && document.title != "[New] Unicorn Chat") document.title = "[New] Unicorn Chat";
+}
+
 var isActive;
 window.onfocus = function () { isActive = true; document.title = "Unicorn Chat"; };
 window.onblur = function () { isActive = false; };
@@ -21,7 +26,7 @@ socket.on('updatechat', function (username, data) {
 
 socket.on('server-message', function(data) {
     $('#conversation').append('<p>'+ data + '</p>');
-    if(!isActive && document.title != "[New] Unicorn Chat") document.title = "[New] Unicorn Chat";
+    titleNotify(isActive);
     scrollDown();
 });
 
@@ -45,6 +50,14 @@ socket.on('updateusers', function(data) {
         $('#users').append('<div>' + key + '</div>');
     });
     $('#users').append('<div>Anonymous users : ' + data['anon'] + '</div>');
+});
+
+socket.on('disconnect', function() {
+    $('#data').hide();
+    $('#activate-browser-notifications').hide();
+    $('#nickname-send').html('Connect');
+    $('#conversation').append('<p>You\'re disconnected.</p>');
+    titleNotify(isActive);
 });
 
 $(function(){
@@ -76,19 +89,30 @@ $(function(){
     var windowWidth = $(document).width();
     var windowHeight = $(document).height();
     var current_dash = 0;
-    socket.on('dash', function() {
+
+    function launchPony () {
         current_dash += 1;
         var this_dash = current_dash;
         var image = "/custom/images/rdash.gif";
-        var position = Math.floor((Math.random() * 200) + 1);
-        if(position > 90) {
-            image = "/custom/images/rdash_fly.gif";
-        }
+        var position = Math.floor((Math.random() * 90) + 1);
         $('body').append(
-            '<img id="dash_'+ this_dash + '" src="' + image + '" style="position: absolute; bottom:' + position + 'px;">'
+            '<img id="dash_'+ this_dash + '" src="' + image + '" style="position: absolute; bottom:' + position + 'px; left:-100px;z-index:-' + position + ';">'
         );
         $('#dash_' + this_dash).animate({left: windowWidth}, 5000, function() {
             $('#dash_' + this_dash).remove();
         });
+    }
+
+    socket.on('dash', function() {
+        launchPony();
+    });
+
+    socket.on('dashrain', function() {
+        for (var i = 20; i >= 0; i--) {
+            var wait = Math.random() * 10000;
+            setTimeout(function() {
+                launchPony();
+            }, wait);
+        };
     });
 });

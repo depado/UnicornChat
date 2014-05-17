@@ -40,6 +40,10 @@ io.sockets.on('connection', function (socket) {
                     io.sockets.emit('dash');
                     io.sockets.emit('server-message', socket.username + ' launches a wild pony !');
                     break;
+                case '/dashrain':
+                    io.sockets.emit('dashrain');
+                    io.sockets.emit('server-message', socket.username + ' launches a pony rain !');
+                    break;
                 default:
                     var data = validator.escape(data);
                     for(var key in staticData.emotes) {
@@ -58,9 +62,9 @@ io.sockets.on('connection', function (socket) {
     // Adding the user and support nickname changing
     socket.on('adduser', function(username){
         if(username in usernames) {
-            io.sockets.emit('error', 'This nickname is already taken.');
+            socket.emit('error', 'This nickname is already taken.');
         } else if(username == 'null' || username == '') {
-            io.sockets.emit('error', 'This is not a valid nickname.');
+            socket.emit('error', 'This is not a valid nickname.');
         } else {
             var new_username = validator.escape(username);
             if(socket.username in usernames) {
