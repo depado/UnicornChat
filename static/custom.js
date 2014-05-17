@@ -77,16 +77,18 @@ $(function(){
     var windowHeight = $(document).height();
     var current_dash = 0;
     socket.on('dash', function() {
-        current_dash += 1
+        current_dash += 1;
         var this_dash = current_dash;
-        $('body').append('<img id="dash_'+ this_dash +
-                         '" src="/custom/images/rdash.gif" style="position: absolute; bottom:' +
-                         Math.floor((Math.random() * windowHeight) + 1) + 'px;">');
-        $("#dash_" + this_dash).animate({
-            left: windowWidth
-        }, 5000, function() {
+        var image = "/custom/images/rdash.gif";
+        var position = Math.floor((Math.random() * 200) + 1);
+        if(position > 90) {
+            image = "/custom/images/rdash_fly.gif";
+        }
+        $('body').append(
+            '<img id="dash_'+ this_dash + '" src="' + image + '" style="position: absolute; bottom:' + position + 'px;">'
+        );
+        $('#dash_' + this_dash).animate({left: windowWidth}, 5000, function() {
             $('#dash_' + this_dash).remove();
         });
     });
-
 });

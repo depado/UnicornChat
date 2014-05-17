@@ -4,7 +4,9 @@ var express = require('express'),
     io = require('socket.io').listen(server),
     nunjucks = require('nunjucks'),
     validator = require('validator'),
-    compress = require('compression');
+    compress = require('compression'),
+    staticData = require('./static_data'),
+    generation = require('./generation');
 
 // Nunjucks configuration
 nunjucks.configure('views', {
@@ -19,30 +21,6 @@ app.use('/custom', express.static(__dirname + '/static'));
 
 var usernames = {};
 var anon_users = 0;
-var emotes = {
-    ':angry:': {
-        'image': 'angry.gif'
-    },
-    ':hi:': {
-        'image': 'hi.gif'
-    },
-    ':sigh:': {
-        'image': 'sigh.gif'
-    },
-    ':smirk:': {
-        'image': 'smirk.gif'
-    }
-};
-
-function generate_img_string (arg) {
-    var str = "<img src='/custom/images/" + emotes[arg]['image'] + "'";
-    if('height' in emotes[arg]) {
-        str += "style='height:" + emotes[arg]['height'] + "px; padding-bottom:" +
-                        emotes[arg]['height']/10 + "px;'";
-    }
-    str += ">";
-    return str;
-}
 
 io.set('log level', 1);
 io.sockets.on('connection', function (socket) {
@@ -50,29 +28,30 @@ io.sockets.on('connection', function (socket) {
     anon_users += 1;
     io.sockets.emit('updateusers', {'usernames':usernames, 'anon': anon_users});
 
-    // Broadcasts the message sent to all users after escaping it
     socket.on('sendchat', function (data) {
         if(socket.username == null) {
             socket.emit('server-message', 'You are not connected.');
-        } else if (data == '/help') {
-            var help_message = 'This is the help message. Only you can see this.<br />Emotes :<br />';
-            for (var key in emotes) {
-                help_message += generate_img_string(key) + " " + key + "&nbsp;&nbsp;";
-            };
-            help_message += '<br />Commands :<br />/dash : Launches a wild pony over the screen of everyone !';
-            socket.emit('server-message', help_message);
-        } else if (data == '/dash') {
-            io.sockets.emit('dash');
-            io.sockets.emit('server-message', socket.username + ' launches a wild pony !');
-        }else {
-            var data = validator.escape(data);
-            for(var key in emotes) {
-                if(data.indexOf(key) != -1) {
-                    var re = new RegExp(key,"g");
-                    data = data.replace(re, generate_img_string(key));
-                }
-            };
-            io.sockets.emit('updatechat', socket.username, data);
+        } else {
+            switch(data) {
+                case '/help':
+                    socket.emit('server-message', generation.generate_help_string());
+                    break;
+                case '/dash':
+                    io.sockets.emit('dash');
+                    io.sockets.emit('server-message', socket.username + ' launches a wild pony !');
+                    break;
+                default:
+                    var data = validator.escape(data);
+                    for(var key in staticData.emotes) {
+                        if(data.indexOf(key) != -1) {
+                            var re = new RegExp(key.replace('(', '\\(').replace(')', '\\)'), "g");
+                            console.log(re);
+                            data = data.replace(re, generation.generate_img_string(key));
+                        }
+                    };
+                    io.sockets.emit('updatechat', socket.username, data);
+                    break;
+            }
         }
     });
 
@@ -96,7 +75,7 @@ io.sockets.on('connection', function (socket) {
             }
             socket.username = new_username;
             usernames[new_username] = new_username;
-            io.sockets.emit('updateusers', {'usernames':usernames, 'anon': anon_users});
+            io.sockets.emit('updateusers', {'usernames': usernames, 'anon': anon_users});
         }
     });
 
@@ -104,7 +83,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('disconnect', function(){
         if(typeof socket.username != 'undefined') {
             delete usernames[socket.username];
-            io.sockets.emit('updateusers', {'usernames':usernames, 'anon': anon_users});
+            io.sockets.emit('updateusers', {'usernames': usernames, 'anon': anon_users});
             socket.broadcast.emit('server-message', socket.username + ' has disconnected');
         } else {
             anon_users -= 1;

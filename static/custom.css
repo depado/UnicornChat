@@ -52,4 +52,9 @@ body {
     -webkit-font-smoothing : none;
     font-size: 8px;
     overflow: hidden;
+    background: url('/custom/images/bg.jpg') no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
