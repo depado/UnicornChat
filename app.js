@@ -70,10 +70,11 @@ io.sockets.on('connection', function (socket) {
             if(socket.username in usernames) {
                 delete usernames[socket.username];
                 socket.emit('server-message', 'Now known as ' + new_username);
+                socket.emit('username', {'type': 'change', 'username': new_username});
                 socket.broadcast.emit('server-message', socket.username + ' is now known as ' + new_username);
             } else {
                 socket.emit('server-message', 'Now connected as ' + new_username + ' (/help for commands)');
-                socket.emit('connection-success');
+                socket.emit('username', {'type': 'create', 'username': new_username});
                 socket.broadcast.emit('server-message', new_username + ' is now connected');
                 anon_users -= 1;
             }
