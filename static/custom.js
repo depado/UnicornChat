@@ -39,12 +39,18 @@ socket.on('updatechat', function (username, data) {
         if ("Notification" in window) {
             if(Notification.permission === "granted") {
                 if(notify_on_message) {
-                    var notification = new Notification(username + ' : ' + data, {'icon': "/custom/favicon.gif"});
+                    var message_notification = new Notification(username + ' : ' + data, {'icon': "/custom/favicon.gif"});
+                    setTimeout(function(){
+                        message_notification.close();
+                    }, 3000); 
                 }
                 if (notify_on_hl) {
                     var patt = new RegExp("(^|\\W)"+selfusername+"(\\W|$)");
                     if(patt.test(data)) {
-                        var notification = new Notification(username + ' highlighted you.', {'icon': "/custom/favicon.gif"});
+                        var hl_notification = new Notification(username + ' highlighted you.', {'icon': "/custom/favicon.gif"});
+                        setTimeout(function(){
+                            hl_notification.close();
+                        }, 3000); 
                     }
                 }
             }
@@ -61,9 +67,9 @@ socket.on('server-message', function(data) {
         if ("Notification" in window) {
             if(Notification.permission === "granted") {
                 if (notify_on_server) {
-                    var notification = new Notification(data, {'icon': "/custom/favicon.gif"});
+                    var server_notification = new Notification(data, {'icon': "/custom/favicon.gif"});
                     setTimeout(function(){
-                        notification.close();
+                        server_notification.close();
                     }, 3000); 
                 }
             }
@@ -130,6 +136,9 @@ $(function() {
                 }
                 if (permission === "granted") {
                     var notification = new Notification("Thanks for activating Notifications.", {'icon': "/custom/favicon.gif"});
+                    setTimeout(function(){
+                        notification.close();
+                    }, 3000); 
                     $('#activate-browser-notifications').hide();
                     $('#notify-settings').show();
                 }
