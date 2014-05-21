@@ -35,12 +35,12 @@ socket.on('updatechat', function (username, data) {
         if ("Notification" in window) {
             if(Notification.permission === "granted") {
                 if($('#notify-on-message').is(':checked')) {
-                    var notification = new Notification(username + ' : ' + data, {'icon': "/custom/favicon.gif"});
+                    var notification = new Notification("New Message", {'body':username + ' : ' + data, 'icon': "/custom/favicon.gif"});
                 }
                 if ($('#notify-on-hl').is(':checked')) {
                     var patt = new RegExp("(^|\\W)"+selfusername+"(\\W|$)");
                     if(patt.test(data)) {
-                        var notification = new Notification(username + ' highlighted you.', {'icon': "/custom/favicon.gif"});
+                        var notification = new Notification("Highlight", {'body':username + ' highlighted you.', 'icon': "/custom/favicon.gif"});
                     }
                 }
             }

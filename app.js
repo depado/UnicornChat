@@ -92,6 +92,7 @@ io.sockets.on('connection', function (socket) {
             socket.broadcast.emit('server-message', socket.username + ' has disconnected');
         } else {
             anon_users -= 1;
+            io.sockets.emit('updateusers', {'usernames': usernames, 'anon': anon_users});
         }
     });
 });
