@@ -16,6 +16,10 @@ function errorNotify (message) {
 }
 
 var isActive;
+var notify_on_server = false,
+    notify_on_hl = false,
+    notify_on_message = false;
+
 window.onfocus = function () { isActive = true; document.title = "Unicorn Chat"; };
 window.onblur = function () { isActive = false; };
 
@@ -34,10 +38,10 @@ socket.on('updatechat', function (username, data) {
     if(!isActive) {
         if ("Notification" in window) {
             if(Notification.permission === "granted") {
-                if($('#notify-on-message').is(':checked')) {
+                if(notify_on_message) {
                     var notification = new Notification(username + ' : ' + data, {'icon': "/custom/favicon.gif"});
                 }
-                if ($('#notify-on-hl').is(':checked')) {
+                if (notify_on_hl) {
                     var patt = new RegExp("(^|\\W)"+selfusername+"(\\W|$)");
                     if(patt.test(data)) {
                         var notification = new Notification(username + ' highlighted you.', {'icon': "/custom/favicon.gif"});
@@ -56,8 +60,11 @@ socket.on('server-message', function(data) {
     if(!isActive) {
         if ("Notification" in window) {
             if(Notification.permission === "granted") {
-                if ($('#notify-on-server').is(':checked')) {
-                    var notification = new Notification(data, {'icon': "/custom/favicon.gif"});   
+                if (notify_on_server) {
+                    var notification = new Notification(data, {'icon': "/custom/favicon.gif"});
+                    setTimeout(function(){
+                        notification.close();
+                    }, 3000); 
                 }
             }
         }
@@ -193,5 +200,23 @@ $(function() {
             '<input type="checkbox" name="checkbox" id="notify-on-server" />' +
             '&nbsp;Server Message' +
             '</label>'
+    });
+
+    $('#notify-settings').on('shown.bs.popover', function () {
+        if(notify_on_server) $('#notify-on-server').attr('checked', true);
+        if(notify_on_message) $('#notify-on-message').attr('checked', true);
+        if(notify_on_hl) $('#notify-on-hl').attr('checked', true);
+
+        $('#notify-on-server').change(function(){
+            notify_on_server=!notify_on_server;
+        });
+
+        $('#notify-on-hl').change(function(){
+            notify_on_hl=!notify_on_hl;
+        });
+
+        $('#notify-on-message').change(function(){
+            notify_on_message=!notify_on_message;
+        });
     });
 });
