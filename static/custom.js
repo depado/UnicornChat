@@ -30,17 +30,17 @@ socket.on('updatechat', function (username, data) {
         + d.getHours() + ':' + (d.getMinutes()<10?'0':'') + d.getMinutes() + '] ' + username + ' > ' + data
         + '</p></div></li>'
     );
+    titleNotify(isActive);
     if(!isActive) {
-        if(document.title != "[New] Unicorn Chat") document.title = "[New] Unicorn Chat";
         if ("Notification" in window) {
             if(Notification.permission === "granted") {
                 if($('#notify-on-message').is(':checked')) {
-                    var notification = new Notification("New Message", {'body':username + ' : ' + data, 'icon': "/custom/favicon.gif"});
+                    var notification = new Notification(username + ' : ' + data, {'icon': "/custom/favicon.gif"});
                 }
                 if ($('#notify-on-hl').is(':checked')) {
                     var patt = new RegExp("(^|\\W)"+selfusername+"(\\W|$)");
                     if(patt.test(data)) {
-                        var notification = new Notification("Highlight", {'body':username + ' highlighted you.', 'icon': "/custom/favicon.gif"});
+                        var notification = new Notification(username + ' highlighted you.', {'icon': "/custom/favicon.gif"});
                     }
                 }
             }
@@ -53,6 +53,15 @@ socket.on('server-message', function(data) {
     $('#conversation').append('<p>'+ data + '</p>');
     titleNotify(isActive);
     scrollDown();
+    if(!isActive) {
+        if ("Notification" in window) {
+            if(Notification.permission === "granted") {
+                if ($('#notify-on-server').is(':checked')) {
+                    var notification = new Notification(data, {'icon': "/custom/favicon.gif"});   
+                }
+            }
+        }
+    }
 });
 
 socket.on('username', function(data) {
@@ -86,6 +95,7 @@ socket.on('disconnect', function() {
     $('#notify-settings').hide();
     $('#nickname-send').html('Connect');
     $('#conversation').append('<p>You\'re disconnected.</p>');
+    $('#notify-settings').popover('hide');
     titleNotify(isActive);
     scrollDown();
 });
@@ -165,5 +175,23 @@ $(function() {
                 launchPony();
             }, wait);
         };
+    });
+    $('#notify-settings').popover({
+        'html':true,
+        'placement': 'top',
+        'content': 
+            '<p>Notify me on...</p>' +
+            '<label style="font-weight: normal;">' +
+            '<input type="checkbox" name="checkbox" id="notify-on-hl">' +
+            '&nbsp;Highlight' +
+            '</label><br />'+
+            '<label style="font-weight: normal;">' +
+            '<input type="checkbox" name="checkbox" id="notify-on-message" />' +
+            '&nbsp;New Message' +
+            '</label><br />' +
+            '<label style="font-weight: normal;">' +
+            '<input type="checkbox" name="checkbox" id="notify-on-server" />' +
+            '&nbsp;Server Message' +
+            '</label>'
     });
 });
