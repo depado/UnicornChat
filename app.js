@@ -103,4 +103,4 @@ app.get('/', function(req, res) {
 });
 
 // Listening on port 8080
-server.listen(8080, '0.0.0.0');
+server.listen(8080);
