@@ -50,7 +50,6 @@ io.sockets.on('connection', function (socket) {
                     for(var key in staticData.emotes) {
                         if(data.indexOf(key) != -1) {
                             var re = new RegExp(key.replace('(', '\\(').replace(')', '\\)'), "g");
-                            console.log(re);
                             data = data.replace(re, generation.generate_img_string(key));
                         }
                     };
