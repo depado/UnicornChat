@@ -6,7 +6,8 @@ var express = require('express'),
     validator = require('validator'),
     compress = require('compression'),
     staticData = require('./static_data'),
-    generation = require('./generation');
+    generation = require('./generation'),
+    validUrl = require('valid-url');
 
 // Nunjucks configuration
 nunjucks.configure('views', {
@@ -53,6 +54,13 @@ io.sockets.on('connection', function (socket) {
                             data = data.replace(re, generation.generate_img_string(key));
                         }
                     };
+                    var arr = data.split(" ");
+                    for (var i=0; i<arr.length; i++) {
+                        if (validUrl.isUri(arr[i])){
+                            arr[i] = "<a href='" + arr[i] + "''>" + arr[i] + "</a>";
+                        }
+                    }
+                    data = arr.join(" ");
                     io.sockets.emit('updatechat', socket.username, data);
                     break;
             }
