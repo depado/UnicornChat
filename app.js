@@ -56,7 +56,12 @@ io.sockets.on('connection', function (socket) {
                     var arr = data.split(" ");
                     for (var i=0; i<arr.length; i++) {
                         if (validUrl.isUri(arr[i])){
-                            arr[i] = "<a href='" + arr[i] + "''>" + arr[i] + "</a>";
+                            var re = new RegExp(/\.(jpeg|jpg|gif|png)$/);
+                            if (arr[i].match(re)) {
+                                arr[i] = "<img src='" + arr[i] + "' style='max-width: 200px; max-height=200px;' />"
+                            } else {
+                                arr[i] = "<a href='" + arr[i] + "''>" + arr[i] + "</a>";
+                            }
                         }
                     }
                     data = arr.join(" ");
