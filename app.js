@@ -24,6 +24,7 @@ var baseUrl = 'http://unicorn.depado.eu';
 app.use(compress());
 app.use(express.static(__dirname + '/bower_components'));
 app.use('/custom', express.static(__dirname + '/static'));
+app.enable('trust proxy');
 
 var usernames = {};
 var anon_users = 0;
@@ -121,7 +122,6 @@ app.get('/', function(req, res) {
         action_name: req.url,
         ua: req.header('User-Agent'),
         lang: req.header('Accept-Language'),
-        cip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
     });
     res.render('index.html');
 });
