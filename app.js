@@ -118,9 +118,10 @@ io.sockets.on('connection', function (socket) {
 app.get('/', function(req, res) {
     piwik.track({
         url: baseUrl + req.url,
-        action_name: 'Unicorn HomePage',
+        action_name: req.url,
         ua: req.header('User-Agent'),
         lang: req.header('Accept-Language'),
+        cip: req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     });
     res.render('index.html');
 });
