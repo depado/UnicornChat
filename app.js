@@ -7,13 +7,18 @@ var express = require('express'),
     compress = require('compression'),
     staticData = require('./static_data'),
     generation = require('./generation'),
-    validUrl = require('valid-url');
+    validUrl = require('valid-url'),
+    PiwikTracker = require('piwik-tracker');
 
 // Nunjucks configuration
 nunjucks.configure('views', {
     autoescape: true,
     express: app
 });
+
+// Piwik
+var piwik = new PiwikTracker(1, 'http://analytics.depado.eu/piwik.php');
+var baseUrl = 'http://unicorn.depado.eu';
 
 // Use the compress middleware to send gzipped content
 app.use(compress());
@@ -111,6 +116,7 @@ io.sockets.on('connection', function (socket) {
 
 // Simple route with websocket inside it
 app.get('/', function(req, res) {
+    piwik.track(baseUrl + req.url);
     res.render('index.html');
 });
 
