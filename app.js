@@ -122,6 +122,7 @@ app.get('/', function(req, res) {
         action_name: req.url,
         ua: req.header('User-Agent'),
         lang: req.header('Accept-Language'),
+        cip: req.ip
     });
     res.render('index.html');
 });
