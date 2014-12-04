@@ -121,7 +121,7 @@ app.get('/', function(req, res) {
         action_name: req.url,
         ua: req.header('User-Agent'),
         lang: req.header('Accept-Language'),
-        cip: req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        cip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
     });
     res.render('index.html');
 });
