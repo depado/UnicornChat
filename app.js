@@ -116,7 +116,12 @@ io.sockets.on('connection', function (socket) {
 
 // Simple route with websocket inside it
 app.get('/', function(req, res) {
-    piwik.track(baseUrl + req.url);
+    piwik.track({
+        url: baseUrl + req.url,
+        action_name: 'Unicorn HomePage',
+        ua: req.header('User-Agent'),
+        lang: req.header('Accept-Language'),
+    });
     res.render('index.html');
 });
 
