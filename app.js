@@ -8,7 +8,6 @@ var express = require('express'),
     staticData = require('./static_data'),
     generation = require('./generation'),
     validUrl = require('valid-url'),
-    PiwikTracker = require('piwik-tracker');
 
 // Nunjucks configuration
 nunjucks.configure('views', {
@@ -16,15 +15,11 @@ nunjucks.configure('views', {
     express: app
 });
 
-// Piwik
-var piwik = new PiwikTracker(1, 'http://analytics.depado.eu/piwik.php');
-var baseUrl = 'http://unicorn.depado.eu';
-
 // Use the compress middleware to send gzipped content
+app.enable('trust proxy');
 app.use(compress());
 app.use(express.static(__dirname + '/bower_components'));
 app.use('/custom', express.static(__dirname + '/static'));
-app.enable('trust proxy');
 
 var usernames = {};
 var anon_users = 0;
@@ -117,13 +112,6 @@ io.sockets.on('connection', function (socket) {
 
 // Simple route with websocket inside it
 app.get('/', function(req, res) {
-    piwik.track({
-        url: baseUrl + req.url,
-        action_name: req.url,
-        ua: req.header('User-Agent'),
-        lang: req.header('Accept-Language'),
-        cip: req.ip
-    });
     res.render('index.html');
 });
 
