@@ -7,7 +7,7 @@ var express = require('express'),
     compress = require('compression'),
     staticData = require('./static_data'),
     generation = require('./generation'),
-    validUrl = require('valid-url'),
+    validUrl = require('valid-url');
 
 // Nunjucks configuration
 nunjucks.configure('views', {
