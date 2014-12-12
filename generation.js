@@ -1,7 +1,7 @@
 var staticData = require('./static_data');
 
 var generate_img_string = function (arg) {
-    var str = "<img src='/custom/images/" + staticData.emotes[arg]['image'] + "'";
+    var str = "<img src='" + staticData.emotes[arg]['image'] + "'";
     if('height' in staticData.emotes[arg]) {
         str += "style='height:" + staticData.emotes[arg]['height'] + "px; padding-bottom:" +
                staticData.emotes[arg]['height']/10 + "px;'";

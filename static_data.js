@@ -1,15 +1,21 @@
 var emotes = {
     '(angry)': {
-        'image': 'angry.gif'
+        'image': '/custom/images/angry.gif'
     },
     '(hi)': {
-        'image': 'hi.gif'
+        'image': '/custom/images/hi.gif'
     },
     '(sigh)': {
-        'image': 'sigh.gif'
+        'image': '/custom/images/sigh.gif'
     },
     '(smirk)': {
-        'image': 'smirk.gif'
+        'image': '/custom/images/smirk.gif'
+    },
+    '(huehue)': {
+        'image': '//i.imgur.com/T0OBJQ1.gif'
+    },
+    '(pigarmor)': {
+        'image': '/custom/images/pig-armor.jpg'
     }
 };
 
