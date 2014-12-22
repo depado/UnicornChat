@@ -15,7 +15,8 @@ var emotes = {
         'image': '//i.imgur.com/T0OBJQ1.gif'
     },
     '(pigarmor)': {
-        'image': '/custom/images/pig-armor.jpg'
+        'image': '/custom/images/pig-armor.jpg',
+        'height': '80px'
     }
 };
 

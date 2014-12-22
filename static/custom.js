@@ -15,6 +15,10 @@ function errorNotify (message) {
     }, 2000);
 }
 
+function generateRandomColor() {
+    return '#'+Math.floor(Math.random()*16777215).toString(16);
+}
+
 var isActive;
 var notify_on_server = false,
     notify_on_hl = false,
@@ -25,13 +29,16 @@ window.onblur = function () { isActive = false; };
 
 var selfusername = undefined;
 
+var users = {}
+
 var socket = io.connect(window.location.protocol+'//'+window.location.hostname+':'+window.location.port);
 
 socket.on('updatechat', function (username, data) {
     var d = new Date();
     $('#conversation').append(
         '<li class="left"><div class="chat-body"><p>['
-        + d.getHours() + ':' + (d.getMinutes()<10?'0':'') + d.getMinutes() + '] ' + username + ' > ' + data
+        + d.getHours() + ':' + (d.getMinutes()<10?'0':'') + d.getMinutes() + '] <span style="color: ' + users[username]['color'] + '">' 
+        + username + '</span> > ' + data
         + '</p></div></li>'
     );
     titleNotify(isActive);
@@ -97,7 +104,10 @@ socket.on('error', function (data) {
 socket.on('updateusers', function(data) {
     $('#users').empty();
     $.each(data['usernames'], function(key, value) {
-        $('#users').append('<div>' + key + '</div>');
+        if(!(key in users)) {
+            users[key] = {'color': generateRandomColor()};
+        }
+        $('#users').append('<div style="color: '+ users[key]['color'] +'">' + key + '</div>');
     });
     $('#users').append('<div>Anonymous users : ' + data['anon'] + '</div>');
 });

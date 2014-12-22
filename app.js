@@ -55,6 +55,11 @@ io.sockets.on('connection', function (socket) {
                         }
                     };
                     var arr = data.split(" ");
+                    if (arr[0] === "/me") {
+                        arr.splice(0, 1);
+                        io.sockets.emit('server-message', socket.username + " " + arr.join(" "));
+                        break;
+                    }
                     for (var i=0; i<arr.length; i++) {
                         if (validUrl.isUri(arr[i])){
                             var re = new RegExp(/\.(jpeg|jpg|gif|png)$/);
