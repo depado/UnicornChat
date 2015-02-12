@@ -83,6 +83,8 @@ io.sockets.on('connection', function (socket) {
             socket.emit('error', 'This nickname is already taken.');
         } else if(username == 'null' || username == '' || username.indexOf(' ') >= 0) {
             socket.emit('error', 'This is not a valid nickname.');
+        } else if(username.length > 25) {
+            socket.emit('error', 'This nickname is too damn long.');
         } else {
             var new_username = validator.escape(username);
             if(socket.username in usernames) {
