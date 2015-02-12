@@ -81,7 +81,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('adduser', function(username){
         if(username in usernames) {
             socket.emit('error', 'This nickname is already taken.');
-        } else if(username == 'null' || username == '') {
+        } else if(username == 'null' || username == '' || username.indexOf(' ') >= 0) {
             socket.emit('error', 'This is not a valid nickname.');
         } else {
             var new_username = validator.escape(username);
