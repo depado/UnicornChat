@@ -7,7 +7,7 @@
     "bower": "^1.3.3",
     "compression": "^1.0.2",
     "express": "^4.2.0",
-    "nunjucks": "^1.0.5",
+    "nunjucks": "^3.2.2",
     "piwik-tracker": "^0.1.1",
     "socket.io": "^0.9.16",
     "valid-url": "^1.0.9",
